@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Generator, Iterable
+from typing import Generator, Iterable, Self
 
 from . import petri_net, place
 from .arc import ArcPair
@@ -26,9 +26,9 @@ class Transition:
         self._arcs: list[tuple[place.Place, ArcPair]] | None = list(arcs) if arcs is not None else None
 
     @classmethod
-    def bound(cls, net: petri_net.PetriNet, index: int) -> Transition:
+    def bound(cls, net: petri_net.PetriNet, index: int) -> Self:
         """Создает привязанный переход"""
-        res = Transition()
+        res = cls()
         res.net = net
         res.index = index
         res._name = None

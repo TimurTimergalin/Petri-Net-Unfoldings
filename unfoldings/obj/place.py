@@ -3,7 +3,7 @@ from __future__ import annotations
 from . import petri_net, transition
 from .arc import ArcPair
 
-from typing import Generator, Iterable
+from typing import Generator, Iterable, Self
 
 
 class Place:
@@ -26,13 +26,11 @@ class Place:
         self._arcs: list[tuple[transition.Transition, ArcPair]] | None = list(arcs) if arcs is not None else None
 
     @classmethod
-    def bound(cls, net: petri_net.PetriNet, index: int) -> Place:
+    def bound(cls, net: petri_net.PetriNet, index: int) -> Self:
         """Создает привязанную позицию"""
-        res = Place()
+        res = cls()
         res.net = net
         res.index = index
-        res._name = None
-        res._arcs = None
         return res
 
     @property
