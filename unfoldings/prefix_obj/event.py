@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from typing import Iterable, Self
+from typing import Iterable, Generator, cast
+
+from ..typing_utils import *
 
 from . import condition, prefix
-from ..obj import ArcPair, Transition
+from ..obj import ArcPair, Transition, PetriNet
 
 
 class Event(Transition):
     """Класс события развертки"""
+
     def __init__(self,
                  name: str | None = None,
                  label: Transition | None = None,
@@ -16,18 +19,29 @@ class Event(Transition):
         self.net: prefix.Prefix | None = None
         self._label = label
 
-    @classmethod
-    def bound(cls, net: prefix.Prefix, index: int) -> Self:
-        return super().bound(net, index)
-
     @property
     def label(self) -> Transition:
         """Переход, которым помечено условие"""
         if self.is_bound:
+            assert not_none(self.net)
+            assert not_none(self.index)
             return self.net.e_labels[self.index]
 
+        assert not_none(self._label)
         return self._label
 
-    def on_add(self, net: prefix.Prefix, index: int) -> None:
+    def on_add(self, net: PetriNet, index: int) -> None:
+        assert isinstance(net, prefix.Prefix)
+        assert not_none(self._label)
         super().on_add(net, index)
         net.e_labels[index] = self._label
+
+    @property
+    def preset(self) -> Generator[tuple[condition.Condition, int], None, None]:
+        for x, c in super().preset:
+            yield cast(condition.Condition, x), c
+
+    @property
+    def postset(self) -> Generator[tuple[condition.Condition, int], None, None]:
+        for x, c in super().postset:
+            yield cast(condition.Condition, x), c

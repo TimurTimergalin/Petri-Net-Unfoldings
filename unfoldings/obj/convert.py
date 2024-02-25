@@ -3,6 +3,8 @@
 """
 from __future__ import annotations
 
+from ..typing_utils import *
+
 from pm4py.objects.petri_net.obj import PetriNet as Pm4PyNet, Marking as Pm4PyMarking
 from pm4py.objects.petri_net.utils import petri_utils
 
@@ -14,9 +16,9 @@ from .place import Place
 from typing import cast
 
 
-def from_pm4py(net: Pm4PyNet,
-               *markings: Pm4PyMarking
-               ) -> tuple[PetriNet, list[Marking], dict[Pm4PyNet.Place, int], dict[Pm4PyNet.Transition, int]]:
+def net_from_pm4py(net: Pm4PyNet,
+                   *markings: Pm4PyMarking
+                   ) -> tuple[PetriNet, list[Marking], dict[Pm4PyNet.Place, int], dict[Pm4PyNet.Transition, int]]:
     """Преобразует pm4py-представление сети Петри в наше представление. Дополнительно преобразует все переданные
     разметки.
 
@@ -54,9 +56,9 @@ def from_pm4py(net: Pm4PyNet,
     return res_net, res_markings, places, transitions
 
 
-def to_pm4py(net: PetriNet,
-             *markings: Marking,
-             net_name: str | None = None) -> tuple[Pm4PyNet, list[Pm4PyMarking], list[Pm4PyNet.Place], list[Pm4PyNet.Transition]]:
+def net_to_pm4py(net: PetriNet,
+                 *markings: Marking,
+                 net_name: str | None = None) -> tuple[Pm4PyNet, list[Pm4PyMarking], list[Pm4PyNet.Place], list[Pm4PyNet.Transition]]:
     """Преобразует наше представление сети Петри в pm4py-представление. Дополнительно преобразует все переданные
     разметки.
 
@@ -67,10 +69,10 @@ def to_pm4py(net: PetriNet,
 
     res_net = Pm4PyNet(net_name or "")
     for p in places:
-        cast(set, res_net.places).add(p)
+        cast(set[Pm4PyNet.Place], res_net.places).add(p)
 
     for t in transitions:
-        cast(set, res_net.transitions).add(t)
+        cast(set[Pm4PyNet.Transition], res_net.transitions).add(t)
 
     for i, p in enumerate(places):
         for j, t in enumerate(transitions):
@@ -83,7 +85,7 @@ def to_pm4py(net: PetriNet,
                 petri_utils.add_arc_from_to(t, p, res_net, arc.from_t_to_p)
 
     res_markings = [
-        Pm4PyMarking({places[k.index]: v for k, v in marking.items()})
+        Pm4PyMarking({places[to_not_none(k.index)]: v for k, v in marking.items()})
         for marking in markings
     ]
 

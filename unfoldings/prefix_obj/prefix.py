@@ -10,7 +10,7 @@ class Prefix(PetriNet):
 
     e_labels -- массив переходов, которыми помечены события развертки
     """
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.c_labels: list[Place] = []
         self.e_labels: list[Transition] = []

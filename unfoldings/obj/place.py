@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from ..typing_utils import *
+
 from . import petri_net, transition
 from .arc import ArcPair
 
-from typing import Generator, Iterable, Self
+from typing import Generator, Iterable, Self, Any
 
 
 class Place:
@@ -42,16 +44,22 @@ class Place:
     def name(self) -> str:
         """Имя позиции"""
         if self.is_bound:
+            assert not_none(self.net)
+            assert not_none(self.index)
             return self.net.p_names[self.index]
 
+        assert not_none(self._name)
         return self._name
 
     @property
     def arcs(self) -> Generator[tuple[transition.Transition, ArcPair], None, None]:
         """Дуги позиции (входящие и исходящие)"""
         if self.is_bound:
+            assert not_none(self.net)
+            assert not_none(self.index)
             yield from self.net.place_arcs(self.index)
 
+        assert not_none(self._arcs)
         yield from self._arcs
 
     @property
@@ -76,7 +84,9 @@ class Place:
 
         return id(self)
 
-    def __eq__(self, other: Place) -> bool:
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Place):
+            return False
         if self.is_bound is not other.is_bound:
             return False
 

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from ..typing_utils import *
+
 from . import place, transition
 from .arc import ArcPair
 
 from itertools import chain
-from typing import Generator
+from typing import Generator, overload
 
 
 class PetriNet:
@@ -20,7 +22,7 @@ class PetriNet:
     t_names -- массив имен переходов
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.adjacency_matrix: list[list[ArcPair]] = []
         self.p_names: list[str] = []
         self.t_names: list[str] = []
@@ -44,6 +46,7 @@ class PetriNet:
         self.adjacency_matrix.append(row)
         for t, ws in p.arcs:
             assert t.is_bound, "unknown transition"
+            assert not_none(t.index)
             row[t.index] = ws
 
         p.on_add(self, self.p_count - 1)
@@ -55,6 +58,7 @@ class PetriNet:
 
         for p, ws in t.arcs:
             assert p.is_bound, "unknown place"
+            assert not_none(p.index)
             self.adjacency_matrix[p.index].append(ws)
 
         for row in self.adjacency_matrix:
@@ -82,16 +86,24 @@ class PetriNet:
                 continue
             yield place.Place.bound(self, pi), ap
 
-    def __getitem__(self, item: int | tuple[int, int]) -> ArcPair | list[ArcPair]:
+    @overload
+    def __getitem__(self, item: int) -> list[ArcPair]:
+        ...
+
+    @overload
+    def __getitem__(self, item: tuple[int, int]) -> ArcPair:
+        ...
+
+    def __getitem__(self, item: int | tuple[int, int]) -> list[ArcPair] | ArcPair:
         if isinstance(item, int):
             return self.adjacency_matrix[item]
 
         return self.adjacency_matrix[item[0]][item[1]]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"PetriNet({self.adjacency_matrix})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         max_pt = max(
             len(f"pt: {a.from_p_to_t}" if a.from_p_to_t else "") for a in chain.from_iterable(self.adjacency_matrix))
 
