@@ -58,6 +58,7 @@ class Place:
             assert not_none(self.net)
             assert not_none(self.index)
             yield from self.net.place_arcs(self.index)
+            return
 
         assert not_none(self._arcs)
         yield from self._arcs
@@ -99,4 +100,4 @@ class Place:
         return self.name
 
     def __repr__(self) -> str:
-        return f"Place({self.name})"
+        return f"{type(self).__name__}({self.name})"

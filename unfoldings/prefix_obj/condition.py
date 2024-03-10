@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Iterable, Generator, cast
 
-from .. import PetriNet
+from ..obj import PetriNet
 from ..typing_utils import *
 
 from . import event, prefix
@@ -35,12 +35,19 @@ class Condition(Place):
         assert isinstance(net, prefix.Prefix)
         assert not_none(self._label)
         super().on_add(net, index)
-        net.c_labels[index] = self._label
+        net.c_labels.append(self._label)
 
     @property
     def preset(self) -> Generator[tuple[event.Event, int], None, None]:
         for x, c in super().preset:
             yield cast(event.Event, x), c
+
+    @property
+    def input(self) -> event.Event | None:
+        for e, _ in self.preset:
+            return e
+
+        return None
 
     @property
     def postset(self) -> Generator[tuple[event.Event, int], None, None]:

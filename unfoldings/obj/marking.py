@@ -47,3 +47,6 @@ class Marking(Mapping[place.Place, int]):
                 power_of_2 *= 2
 
         return res
+
+    def elements(self) -> Iterable[place.Place]:
+        return self.__counter.elements()

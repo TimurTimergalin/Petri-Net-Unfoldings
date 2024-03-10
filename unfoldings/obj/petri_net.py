@@ -6,7 +6,7 @@ from . import place, transition
 from .arc import ArcPair
 
 from itertools import chain
-from typing import Generator, overload
+from typing import Generator, overload, Callable
 
 
 class PetriNet:
@@ -26,6 +26,14 @@ class PetriNet:
         self.adjacency_matrix: list[list[ArcPair]] = []
         self.p_names: list[str] = []
         self.t_names: list[str] = []
+
+    @property
+    def place_factory(self) -> Callable[[PetriNet, int], place.Place]:
+        return place.Place.bound
+
+    @property
+    def transition_factory(self) -> Callable[[PetriNet, int], transition.Transition]:
+        return transition.Transition.bound
 
     @property
     def p_count(self) -> int:
@@ -74,7 +82,7 @@ class PetriNet:
         for ti, ap in enumerate(self.adjacency_matrix[place_index]):
             if ap == ArcPair.no():
                 continue
-            yield transition.Transition.bound(self, ti), ap
+            yield self.transition_factory(self, ti), ap
 
     def transition_arcs(self, transition_index: int) -> Generator[tuple[place.Place, ArcPair], None, None]:
         """Перечисляет все дуги между данным переходом и всеми позициями"""
@@ -84,7 +92,7 @@ class PetriNet:
             ap = row[transition_index]
             if ap == ArcPair.no():
                 continue
-            yield place.Place.bound(self, pi), ap
+            yield self.place_factory(self, pi), ap
 
     @overload
     def __getitem__(self, item: int) -> list[ArcPair]:
@@ -127,3 +135,11 @@ class PetriNet:
         ]
 
         return header + "|\n" + "|\n".join(lines) + "|"
+
+    def places(self) -> Generator[place.Place, None, None]:
+        for i in range(self.p_count):
+            yield self.place_factory(self, i)
+
+    def transitions(self) -> Generator[transition.Transition, None, None]:
+        for i in range(self.t_count):
+            yield self.transition_factory(self, i)

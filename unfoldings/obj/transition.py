@@ -60,6 +60,7 @@ class Transition:
             assert not_none(self.net)
             assert not_none(self.index)
             yield from self.net.transition_arcs(self.index)
+            return
 
         assert not_none(self._arcs)
         yield from self._arcs
@@ -101,4 +102,4 @@ class Transition:
         return self.name
 
     def __repr__(self) -> str:
-        return f"Transition({self.name})"
+        return f"{type(self).__name__}({self.name})"

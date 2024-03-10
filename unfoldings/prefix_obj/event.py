@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Generator, cast
+from typing import Iterable, Generator, cast, Any
 
 from ..typing_utils import *
 
@@ -30,11 +30,16 @@ class Event(Transition):
         assert not_none(self._label)
         return self._label
 
+    @property
+    def comparable_label(self) -> Any:
+        """Ключ для сравнения переходов, которыми помечены события"""
+        return self.label.index
+
     def on_add(self, net: PetriNet, index: int) -> None:
         assert isinstance(net, prefix.Prefix)
         assert not_none(self._label)
         super().on_add(net, index)
-        net.e_labels[index] = self._label
+        net.e_labels.append(self._label)
 
     @property
     def preset(self) -> Generator[tuple[condition.Condition, int], None, None]:
